@@ -1,0 +1,5 @@
+KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"
+KUBE_API_PORT="--insecure-port=8080"
+KUBE_ETCD_SERVERS="--etcd-servers=http://{{node1}}:2379,http://{{node2}}:2379,http://{{node3}}:2379"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota"

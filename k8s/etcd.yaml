@@ -1,0 +1,12 @@
+- hosts: all
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: install etcd
+      yum: name=etcd state=installed
+    - name: config etcd
+      template: dest=/etc/etcd/etcd.conf src=etcd.conf.j2
+    - name: start etcd
+      service: name=etcd state=started enabled=yes

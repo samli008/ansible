@@ -1,0 +1,15 @@
+- hosts: node
+  remote_user: root
+  vars_files: 
+    - var.yaml
+
+  tasks:
+    - include: data.yaml
+
+    - name: install_data_node
+      yum: name=moosefs-chunkserver,moosefs-client
+
+    - name: config_data_node
+      shell: echo "MASTER_HOST = {{master}}" >> /etc/mfs/mfschunkserver.cfg; echo "{{data_dir}}" >> /etc/mfs/mfshdd.cfg
+    - name: chown_data
+      shell: chown -R mfs:mfs {{data_dir}}

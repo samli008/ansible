@@ -1,0 +1,13 @@
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: install_consul
+      copy: src=/root/consul dest=/usr/local/sbin/
+    - name: exec_consul
+      shell: chmod 755 /usr/local/sbin/consul
+
+    - name: copy_docker_image
+      copy: src=/root/c7mfs.tar dest=/root/
+    - name: import_docker_image
+      shell: chdir=/root docker load < c7mfs.tar

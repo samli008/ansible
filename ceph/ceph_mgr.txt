@@ -1,0 +1,5 @@
+# dashboard: "https://ip:8443/"
+ceph mgr module enable dashboard
+ceph dashboard create-self-signed-cert
+ceph dashboard set-login-credentials admin admin
+ceph mgr services

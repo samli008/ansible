@@ -1,0 +1,1 @@
+etcdctl --ca-file=/usr/local/ssl/etcd/ca.pem --cert-file=/usr/local/ssl/etcd/server.pem --key-file=/usr/local/ssl/etcd/server-key.pem --endpoints="https://127.0.0.1:2379" ls /atomic.io/network/subnets

@@ -1,0 +1,19 @@
+---
+- hosts: mon
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: deploy_cephfs_mds
+      shell: docker run -d --net=host --name=mds --restart=always -v /var/lib/ceph/:/var/lib/ceph/ -v /etc/ceph:/etc/ceph -e CEPHFS_CREATE=1 ceph/daemon mds
+
+    - name: set_pool_size
+      shell: ceph osd pool set cephfs_data size 2; ceph osd pool set cephfs_data pg_num {{pg}}; ceph osd pool set cephfs_data pgp_num {{pg}}
+
+- hosts: mon2
+  remote_user: root
+
+  tasks:
+    - name: add_cephfs_mds
+      shell: docker run -d --net=host --name=mds --restart=always -v /var/lib/ceph/:/var/lib/ceph/ -v /etc/ceph:/etc/ceph ceph/daemon mds

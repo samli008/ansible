@@ -1,0 +1,8 @@
+ip=`awk -F '[ =/ ]' 'NR==2{print $2}' /run/flannel/subnet.env`
+sed -i "s/dockerd/& --bip=$ip\/24 --mtu=1450/" /usr/lib/systemd/system/docker.service
+
+systemctl daemon-reload
+systemctl restart docker
+
+iptables -P INPUT ACCEPT
+iptables -P FORWARD ACCEPT

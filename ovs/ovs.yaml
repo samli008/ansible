@@ -1,0 +1,10 @@
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: copy_openvswitch.tar
+      copy: src=/root/openvswitch.tar dest=/root/
+    - name: open_openswitch_tar
+      shell: chdir=/root/ tar xzf openvswitch.tar
+    - name: install_openvswitch
+      shell: chdir=/root/ sh openvswitch.sh

@@ -1,0 +1,31 @@
+# on c03 node
+consul agent -server -bootstrap -data-dir /root/ -bind=192.168.20.143 &
+# on c04 node
+consul agent -data-dir /root/ -bind=192.168.20.144 &
+consul join 192.168.20.143 &
+# on c05 node
+consul agent -data-dir /root/ -bind=192.168.20.151 &
+consul join 192.168.20.143 &
+
+consul members
+consul leave
+
+# each docker nodes 
+sed -i 's|ExecStart=/usr/bin/dockerd|ExecStart=/usr/bin/dockerd --cluster-store=consul://localhost:8500 --cluster-advertise=eth0:2376|g' /usr/lib/systemd/system/docker.service
+
+systemctl daemon-reload
+systemctl restart docker
+
+# create overlay network for docker
+docker network create net1 -d overlay --subnet=192.168.10.0/24
+
+# create container with overlay network on c03
+docker run -d --network net1 --ip 192.168.10.13 -h n13 --name n13 --privileged=true c7:mfs
+
+# create container with overlay network on c04
+docker run -d --network net1 --ip 192.168.10.14 -h n14 --name n14 --privileged=true c7:mfs
+
+# capture packages with tcpdump for wireshark
+tcpdump -i eth0 icmp -c 10
+tcpdump -i eth0 port 22 -c 10
+tcpdump -i eth0 -w cap1 -c 10

@@ -1,0 +1,26 @@
+- hosts: c03
+  remote_user: root
+
+  tasks:
+    - name: cfssl dir
+      unarchive: src=cfssl.tar dest=/usr/local/sbin mode=755
+
+    - name: etcd cert dir
+      file: path=/usr/local/ssl/etcd state=directory mode=755
+    - name: copy_ca_file
+      unarchive: src=etcd_cert.tar dest=/usr/local/ssl/etcd mode=755
+
+    - name: generate ca.pem
+      shell: chdir=/usr/local/ssl/etcd cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+    - name: generate server.pem
+      shell: chdir=/usr/local/ssl/etcd cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=www server-csr.json | cfssljson -bare server; chmod 755 *
+
+    - name: k8s cert dir
+      file: path=/usr/local/ssl/k8s state=directory mode=755
+    - name: copy_ca_file
+      unarchive: src=k8s_cert.tar dest=/usr/local/ssl/k8s mode=755
+
+    - name: generate ca.pem
+      shell: chdir=/usr/local/ssl/k8s cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+    - name: generate server.pem kube-proxy.pem
+      shell: chdir=/usr/local/ssl/k8s cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes server-csr.json | cfssljson -bare server; cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy; chmod 755 *

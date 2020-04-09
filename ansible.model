@@ -1,0 +1,63 @@
+# ansibel model view
+ansible-doc -l
+ansible-doc -s file
+
+# setup and ping model; Built-in jinja variable
+ansible mfs -m ping
+ansible mfs -m setup
+ansible mfs -m setup -a 'filter=ansible_devices'
+ansible mfs -m setup -a 'filter=ansible_machine'
+ansible mfs -m setup -a 'filter=ansible_distribution_version'
+ansible mfs -m setup -a 'filter=ansible_interfaces'
+
+# file model
+ansible mfs -m file -a "src=/etc/fstab dest=/root/fstab state=link" #create soft link
+ansible mfs -a 'ls -l /root'
+ansible mfs -m file -a "path=/root/fstab state=absent" #delete file
+ansible mfs -m file -a "path=/root/file1 state=touch" #create file
+
+ansible mfs -m file -a "path=/root/d1 state=directory owner=root group=root mode=755"
+ansible mfs -m file -a "path=/root/d1 state=absent"
+
+# copy model with md5sum diff
+ansible mfs -m copy -a "src=file2 dest=/root/file22"
+ansible mfs -m copy -a "src=file2 dest=/root/file22 owner=root group=root mode=755"
+ansible mfs -m copy -a "src=file2 dest=/root/file22 owner=root group=root mode=755 backup=yes"
+ansible mfs -m copy -a "src=dir1 dest=/root mode=755"
+
+# service model
+ansible mfs -a 'yum -y install httpd'
+ansible mfs -a 'systemctl status httpd'
+ansible mfs -m service -a 'name=httpd state=started enabled=yes'
+ansible mfs -m service -a 'name=httpd state=stopped'
+ansible mfs -m service -a 'name=httpd state=started'
+ansible mfs -m service -a 'name=httpd state=restarted' 
+ansible mfs -m service -a 'name=network state=restarted' 
+
+# cron model
+ansible mfs -m cron -a "name='reboot_system' hour=2 user=root job='/sbin/reboot'"
+ansible mfs -a 'crontab -l'
+ansible mfs -m cron -a "name='check' minute=*/3 job='ls /root'"
+ansible mfs -m cron -a "name='reboot_system' state=absent"
+
+# filesystem and mount model
+ansible mfs -a 'mkdir /data'
+ansible mfs -m filesystem -a 'fstype=xfs dev=/dev/vdb'
+ansible mfs -m filesystem -a 'fstype=xfs dev=/dev/vdb force=yes'
+ansible mfs -m mount -a 'name=/data src=/dev/vdb fstype=xfs state=mounted opts=rw'
+ansible mfs -m mount -a 'name=/data state=absent'
+
+# yum model
+ansible mfs -m yum -a 'name=vsftpd state=installed'
+ansible mfs -m yum -a 'name=vsftpd state=absent'
+
+# user model
+ansible mfs -m user -a 'createhome=yes home=/home/user1 password=123456 name=user1 state=present shell=/bin/bash'
+ansible mfs -m user -a 'remove=yes name=user1 state=absent'
+
+# synchronize model
+ansible mfs -m synchronize -a 'src=/root/file1 dest=/root/'
+ansible mfs -m synchronize -a 'src=/root/dir1 dest=/root/'
+
+# hostname model
+ansible c05 -m hostname -a 'name=c005'

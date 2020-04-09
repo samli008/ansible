@@ -1,0 +1,17 @@
+[Unit]
+Description=kubelet
+After=docker.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kubelet \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOG_DIR \
+            --kubeconfig=/usr/local/ssl/k8s/bootstrap.kubeconfig \
+            --bootstrap-kubeconfig=/usr/local/ssl/k8s/bootstrap.kubeconfig \
+            --config=/usr/local/kubernetes/conf/kubelet.config \
+            --cert-dir=/usr/local/ssl/k8s \
+            --pod-infra-container-image=registry.cn-hangzhou.aliyuncs.com/google-containers/pause-amd64:3.0
+[Install]
+WantedBy=multi-user.target
+

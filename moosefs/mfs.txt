@@ -1,0 +1,14 @@
+#The number of copies for the folder
+
+mfssetgoal -r 1 /mnt/mfs/folder1
+mfssetgoal -r 2 /mnt/mfs/folder2
+mfsgetgoal /mnt/mfs/folder1
+mfsfileinfo /mnt/mfs/folder1/xxx
+mfscheckfile /mnt/mfs/folder1/xxx
+
+#Metadata  in /var/lib/mfs on master role node.
+
+# manager role
+
+mfscgiserv start
+http://ip:9425

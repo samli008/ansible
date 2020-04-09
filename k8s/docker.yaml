@@ -1,0 +1,10 @@
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: copy_docker-ce.repo
+      copy: src=/root/docker-ce.repo dest=/etc/yum.repos.d/
+    - name: install docker-ce
+      yum: name=docker-ce state=installed
+    - name: start_docker
+      service: name=docker state=started enabled=yes

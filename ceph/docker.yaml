@@ -1,0 +1,8 @@
+- hosts: osd
+  remote_user: root
+
+  tasks:
+    - name: install docker17.12.1
+      shell: yum -y install --setopt=obsoletes=0 docker-ce-17.12.1.ce-1.el7.centos.x86_64 docker-ce-selinux-17.12.1.ce-1.el7.centos.noarch
+    - name: start_docker
+      shell: systemctl enable docker;systemctl start docker

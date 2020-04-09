@@ -1,0 +1,53 @@
+# s3cmd object storage cli
+yum -y install s3cmd
+
+vi /root/.s3cfg
+[user01]
+access_key = C5PR8CK8FB16NGAR125W
+secret_key = 12345678
+host_base = 192.168.20.143:7480
+host_bucket =
+use_https = False
+
+# view all buckets
+s3cmd ls
+
+# view bucket
+s3cmd ls s3://liyang01
+
+# create bucket
+s3cmd mb s3://liyang03
+
+# remove bucket
+s3cmd rb s3://liyang03
+
+# put file to bucket
+s3cmd put m.py s3://liyang01
+
+# put directory to bucket
+s3cmd put python3 --recursive s3://liyang01
+
+# get file from bucket
+s3cmd get s3://liyang02/m.py
+
+# get directory from bucket
+s3cmd get --recursive s3://liyang02/python3
+
+# delete file from bucket
+s3cmd del s3://liyang01/m.py
+
+# delete directory from bucket
+s3cmd del --recursive s3://liyang01/python3
+
+# usage bucket
+s3cmd du -H s3://liyang01
+s3cmd du -H 
+
+# copy file from bucket1 to bucket2
+s3cmd cp s3://liyang01/minio.tar s3://bucket001
+
+# move file from bucket1 to bucket2
+s3cmd mv s3://liyang01/minio.tar s3://bucket001
+
+# sync file/director to bucket
+s3cmd sync newdir s3://bucket001

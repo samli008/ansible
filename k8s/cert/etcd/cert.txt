@@ -1,0 +1,43 @@
+证书颁发机构（Certificate Authority）: CA
+证书请求文件(Certificate Signing Request)：csr
+证书（Certificate）：crt
+私钥: key
+
+mkdir -pv /usr/local/ssl/etcd
+cd /usr/local/ssl/etcd
+
+生成私钥和证书
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=www server-csr.json | cfssljson -bare server
+
+cat > etcd.conf.j2 << EOF
+#[Member]
+ETCD_NAME={{ansible_hostname}}
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+
+ETCD_LISTEN_PEER_URLS="https://{{ ansible_eth0.ipv4.address}}:2380"
+ETCD_LISTEN_CLIENT_URLS="https://{{ ansible_eth0.ipv4.address}}:2379,https://localhost:2379"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="https://{{ ansible_eth0.ipv4.address}}:2380"
+ETCD_ADVERTISE_CLIENT_URLS="https://{{ ansible_eth0.ipv4.address}}:2379"
+ETCD_INITIAL_CLUSTER="c03=https://{{node1}}:2380,c04=https://{{node2}}:2380,c05=https://{{node3}}:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+
+ETCD_CERT_FILE="/usr/local/ssl/etcd/server.pem"
+ETCD_KEY_FILE="/usr/local/ssl/etcd/server-key.pem"
+ETCD_TRUSTED_CA_FILE="/usr/local/ssl/etcd/ca.pem"
+ETCD_CLIENT_CERT_AUTH="true"
+ETCD_PEER_CERT_FILE="/usr/local/ssl/etcd/server.pem"
+ETCD_PEER_KEY_FILE="/usr/local/ssl/etcd/server-key.pem"
+ETCD_PEER_TRUSTED_CA_FILE="/usr/local/ssl/etcd/ca.pem"
+ETCD_PEER_CLIENT_CERT_AUTH="true"
+EOF
+
+# verify etcd with https method
+etcdctl --ca-file=/usr/local/ssl/etcd/ca.pem --cert-file=/usr/local/ssl/etcd/server.pem --key-file=/usr/local/ssl/etcd/server-key.pem --endpoints="https://127.0.0.1:2379" member list
+
+34c7be2195ce9482: name=c03 peerURLs=https://192.168.20.143:2380 clientURLs=https://192.168.20.143:2379 isLeader=false
+62209a4dd8a1b48f: name=c05 peerURLs=https://192.168.20.151:2380 clientURLs=https://192.168.20.151:2379 isLeader=false
+f938eae61e7f9292: name=c04 peerURLs=https://192.168.20.144:2380 clientURLs=https://192.168.20.144:2379 isLeader=true

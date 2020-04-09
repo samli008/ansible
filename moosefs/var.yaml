@@ -1,0 +1,6 @@
+master: c03
+net: 192.168.20.0/24
+
+data_device: /dev/vdb
+data_dir: /data
+client_dir: /mfs

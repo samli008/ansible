@@ -1,0 +1,14 @@
+- name: copy_mfs_install_folder
+  copy: src=/root/mfs dest=/root
+- name: copy_mfs_repo
+  copy: src=/root/mfs.repo dest=/etc/yum.repos.d
+
+- name: mkdir_mfs_data_dir
+  file: path={{data_dir}} state=directory mode=755
+- name: mfs_disk_format
+  filesystem: fstype=xfs dev={{data_device}}
+- name: mfs_disk_mount
+  mount: name={{data_dir}} src={{data_device}} fstype=xfs state=mounted opts=rw
+
+- name: mkdir_mfs_client_dir
+  file: path={{client_dir}} state=directory mode=755

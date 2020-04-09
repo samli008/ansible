@@ -1,0 +1,10 @@
+- hosts: c03
+  remote_user: root
+
+  tasks:
+    - name: install haproxy
+      yum: name=haproxy state=installed
+    - name: config haproxy
+      template: dest=/etc/haproxy/haproxy.cfg src=haproxy.cfg.j2
+    - name: start_haproxy
+      service: name=haproxy state=started enabled=yes

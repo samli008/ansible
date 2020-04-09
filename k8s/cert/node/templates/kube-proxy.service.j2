@@ -1,0 +1,12 @@
+[Unit]
+Description=kube-proxy
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kube-proxy \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR \
+            --kubeconfig=/usr/local/ssl/k8s/kube-proxy.kubeconfig
+[Install]
+WantedBy=multi-user.target

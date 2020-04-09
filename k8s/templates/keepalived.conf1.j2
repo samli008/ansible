@@ -1,0 +1,29 @@
+! Configuration File for keepalived
+
+global_defs {
+   router_id c03
+}
+
+vrrp_script chk_mfs {                          
+  script "/etc/keepalived/api.sh"
+  interval 2
+  weight 2
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface eth0
+    virtual_router_id 53
+    priority 98
+    advert_int 1
+    nopreempt
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        192.168.20.172/24
+    }
+    notify_master "/etc/keepalived/start.sh"
+    notify_backup "/etc/keepalived/stop.sh"
+}

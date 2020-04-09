@@ -1,0 +1,18 @@
+---
+# tasks file for flannel
+- name: install flannel
+  yum: name=flannel state=installed
+- name: config flanneld
+  template: dest=/etc/sysconfig/flanneld src=flanneld.j2
+- name: service
+  service: name=flanneld state=restarted enabled=yes
+
+- name: copy_network_script
+  copy: src=flannel_docker dest=/root mode=755
+- name: config_docker_network
+  shell: sh /root/flannel_docker
+
+- name: load nginx.tar
+  copy: src=/root/liyang/nginx.tar dest=/root
+- name: load nginx image
+  shell: chdir=/root docker load < nginx.tar

@@ -1,0 +1,9 @@
+---
+# vars file for node
+node1: 192.168.20.143
+node2: 192.168.20.144
+node3: 192.168.20.151
+
+path: ["/usr/local/kubernetes/conf","/usr/local/kubernetes/bin","/usr/local/kubernetes/logs"]
+api: [kubectl,kube-apiserver,kube-scheduler,kube-controller-manager]
+node: [kubelet,kube-proxy]

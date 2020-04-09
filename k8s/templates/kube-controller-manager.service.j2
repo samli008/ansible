@@ -1,0 +1,12 @@
+[Unit]
+Description=kube-controller-manager
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kube-controller-manager \
+            $KUBE_MASTER \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: load pause.tar
+      copy: src=/root/pause.tar dest=/root
+    - name: load pause image 
+      shell: chdir=/root docker load < pause.tar
+    - name: tag pause image 
+      shell: docker tag kubernetes/pause k8s.gcr.io/pause:3.1
+
+    - name: load nginx.tar
+      copy: src=/root/nginx.tar dest=/root
+    - name: load nginx image
+      shell: chdir=/root docker load < nginx.tar

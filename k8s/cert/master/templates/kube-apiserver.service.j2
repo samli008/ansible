@@ -1,0 +1,20 @@
+[Unit]
+Description=kube-apiserver
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+EnvironmentFile=-/usr/local/kubernetes/conf/kube-apiserver
+ExecStart=/usr/local/kubernetes/bin/kube-apiserver \
+            $KUBE_API_ADDRESS \
+            $KUBE_API_PORT \
+            $KUBE_ETCD_SERVERS \
+            --etcd-cafile=/usr/local/ssl/etcd/ca.pem --etcd-certfile=/usr/local/ssl/etcd/server.pem --etcd-keyfile=/usr/local/ssl/etcd/server-key.pem \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR \
+            $KUBE_ALLOW_PRIV \
+            $KUBE_ADMISSION_CONTROL \
+            --tls-cert-file=/usr/local/ssl/k8s/server.pem --tls-private-key-file=/usr/local/ssl/k8s/server-key.pem --client-ca-file=/usr/local/ssl/k8s/ca.pem --service-account-key-file=/usr/local/ssl/k8s/ca-key.pem --authorization-mode=RBAC,Node --enable-bootstrap-token-auth --token-auth-file=/usr/local/ssl/k8s/token.csv
+[Install]
+WantedBy=multi-user.target
+

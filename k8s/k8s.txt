@@ -1,0 +1,153 @@
+# deploy kube-apiserver
+mkdir -pv /usr/local/kubernetes/{conf,bin,logs}
+cp kubectl kube-apiserver kube-scheduler kube-controller-manager /usr/local/kubernetes/bin/
+
+echo "export PATH=$PATH:/usr/local/kubernetes/bin" >> /etc/profile
+source /etc/profile
+
+vi /usr/local/kubernetes/conf/kubernetes
+KUBE_MASTER="--master=192.168.20.143:8080"
+KUBE_LOG_LEVEL="--v=2"
+KUBE_LOGTOSTDERR="--logtostderr=false"
+KUBE_LOG_DIR="--log-dir=/usr/local/kubernetes/logs/"
+
+vi /usr/local/kubernetes/conf/kube-apiserver
+KUBE_API_ADDRESS="--insecure-bind-address=0.0.0.0"
+KUBE_API_PORT="--insecure-port=8080"
+KUBE_ETCD_SERVERS="--etcd-servers=http://192.168.20.143:2379,http://192.168.20.144:2379,http://192.168.20.151:2379"
+KUBE_ALLOW_PRIV="--allow-privileged=true"
+KUBE_ADMISSION_CONTROL="--admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ResourceQuota"
+
+vi /usr/lib/systemd/system/kube-apiserver.service
+[Unit]
+Description=kube-apiserver
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+EnvironmentFile=-/usr/local/kubernetes/conf/kube-apiserver
+ExecStart=/usr/local/kubernetes/bin/kube-apiserver \
+            $KUBE_API_ADDRESS \
+            $KUBE_API_PORT \
+            $KUBE_ETCD_SERVERS \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR \
+            $KUBE_ALLOW_PRIV \
+            $KUBE_ADMISSION_CONTROL
+[Install]
+WantedBy=multi-user.target
+
+systemctl restart kube-apiserver
+
+kubectl get cs
+
+# kube-controller-manager
+vi /usr/lib/systemd/system/kube-controller-manager.service
+[Unit]
+Description=kube-controller-manager
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kube-controller-manager \
+            $KUBE_MASTER \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR
+[Install]
+WantedBy=multi-user.target
+
+systemctl restart kube-controller-manager
+
+# kube-scheduler.service
+vi /usr/lib/systemd/system/kube-scheduler.service
+[Unit]
+Description=kube-scheduler
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kube-scheduler \
+            $KUBE_MASTER \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR
+[Install]
+WantedBy=multi-user.target
+
+systemctl restart kube-scheduler
+
+[root@c03 system]# kubectl get cs
+NAME                 STATUS    MESSAGE             ERROR
+controller-manager   Healthy   ok                  
+scheduler            Healthy   ok                  
+etcd-0               Healthy   {"health":"true"}   
+etcd-2               Healthy   {"health":"true"}   
+etcd-1               Healthy   {"health":"true"}  
+
+# deploy node on c04
+mkdir -pv /usr/local/kubernetes/{conf,bin,logs}
+scp kubectl kubelet kube-proxy c04:/usr/local/kubernetes/bin/
+
+vi /usr/local/kubernetes/conf/kubernetes
+KUBE_MASTER="--master=192.168.20.143:8080"
+KUBE_LOG_LEVEL="--v=2"
+KUBE_LOGTOSTDERR="--logtostderr=false"
+KUBE_LOG_DIR="--log-dir=/usr/local/kubernetes/logs/"
+EOF
+
+vi /usr/lib/systemd/system/kube-proxy.service
+[Unit]
+Description=kube-proxy
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+ExecStart=/usr/local/kubernetes/bin/kube-proxy \
+            $KUBE_MASTER \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR
+[Install]
+WantedBy=multi-user.target
+
+systemctl restart kube-proxy
+
+docker info |grep 'Cgroup Driver'
+
+vi /usr/local/kubernetes/conf/kubelet
+KUBELET_ADDRESS="--address=192.168.20.144"
+KUBELET_ARGS="--kubeconfig=/usr/local/kubernetes/conf/kubeconfig --cgroup-driver=cgroupfs --enable-server=true --enable-debugging-handlers=true"
+
+vi /usr/local/kubernetes/conf/kubeconfig
+apiVersion: v1
+kind: Config
+users:
+- name: kubelet
+clusters:
+- name: kubernetes
+  cluster:
+    server: 192.168.20.143:8080
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubelet
+  name: default
+current-context: default
+
+vi /usr/lib/systemd/system/kubelet.service
+[Unit]
+Description=kubelet
+After=docker.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+EnvironmentFile=-/usr/local/kubernetes/conf/kubelet
+ExecStart=/usr/local/kubernetes/bin/kubelet \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOG_DIR \
+            $KUBELET_ADDRESS \
+            $KUBELET_ARGS
+[Install]
+WantedBy=multi-user.target
+
+systemctl restart kubelet
+
+kubectl --server=192.168.20.143:8080 get node

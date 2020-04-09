@@ -1,0 +1,6 @@
+ansible-playbook cert.yaml
+ansible-playbook roles.yaml
+/usr/bin/sh exec.sh
+/usr/bin/sh label
+kubectl get cs
+kubectl get node

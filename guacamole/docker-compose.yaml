@@ -1,0 +1,33 @@
+# docker-compose deploy guacamole 
+version: '2'
+services:
+  guacd:
+    container_name: guacd
+    image: guacamole/guacd
+    restart: always
+  mysql:
+    container_name: mysql
+    image: mysql
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=liyang
+      - MYSQL_DATABASE=guacamole_db
+  guacamole:
+    container_name: guacamole
+    image: guacamole/guacamole
+    restart: always
+    ports:
+      - "81:8080"
+    links: 
+      - guacd
+      - mysql
+    environment:  
+      - MYSQL_HOSTNAME=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=guacamole_db
+      - MYSQL_USER=liyang
+      - MYSQL_PASSWORD=liyang
+      - GUACD_HOSTNAME=guacd
+      - GUACD_PORT=4822

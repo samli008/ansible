@@ -1,0 +1,34 @@
+- hosts: all
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: create install dir
+      file: path={{item}} state=directory mode=755
+      with_items: 
+        - "{{path}}"
+
+    - name: copy_bin
+      copy: src=/root/server/bin/{{item}} dest=/usr/local/kubernetes/bin mode=755
+      with_items:
+        - "{{node}}"
+
+    - name: swap off
+      shell: swapoff -a 
+
+    - name: config kubernetes
+      template: dest=/usr/local/kubernetes/conf/kubernetes src=kubernetes.j2
+    - name: config kube-proxy.service
+      template: dest=/usr/lib/systemd/system/kube-proxy.service src=kube-proxy.service.j2
+    - name: start kube-proxy
+      service: name=kube-proxy state=started enabled=yes
+
+    - name: config kubelet
+      template: dest=/usr/local/kubernetes/conf/kubelet src=kubelet.j2
+    - name: kubelet-config
+      template: dest=/usr/local/kubernetes/conf/kubeconfig src=kubeconfig.j2
+    - name: kubelet-service
+      template: dest=/usr/lib/systemd/system/kubelet.service src=kubelet.service.j2
+    - name: start kubelet-service
+      service: name=kubelet state=started enabled=yes

@@ -1,0 +1,116 @@
+# install minio server
+docker pull minio/minio
+docker load < minio.tar
+
+docker run -d -p 9000:9000 --name minio1 \
+-e "MINIO_ACCESS_KEY=admin" \
+-e "MINIO_SECRET_KEY=12345678" \
+-v /data:/data \
+-v /config_data:/root/.minio \
+minio/minio server /data
+
+# install minio client
+wget https://dl.min.io/client/mc/release/linux-amd64/mc
+chmod +x mc
+mv mc /usr/local/sbin
+
+# mc add minio with access and secret key
+mc config host add minio http://ip:9000 admin 12345678
+mc config host ls
+mc admin info minio
+
+# create bucket
+mc mb minio/liyang01
+mc mb minio/zoom
+mc rb minio/liyang01
+mc rb --force minio/liyang01
+
+mc ls minio
+mc ls minio/liyang01
+mc du minio
+mc du minio/liyang01
+
+[root@c03 ~]# mc cp minio.tar minio/zoom
+...o.tar:  52.03 MiB / 52.03 MiB ┃▓▓▓▓▓▓▓┃ 2.14 MiB/s 24s
+
+# create user
+mc admin user add minio liyang liyang008
+mc admin user list minio
+
+# default policy readonly writeonly readwrite
+mc admin policy list minio
+mc admin policy info minio readonly
+mc admin policy info minio writeonly
+mc admin policy info minio readwrite
+
+# create custom policy with json mapping bucket
+## demo1 policy readwrite
+cat > liyang01.json << EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:*"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::liyang01/*"
+      ],
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+## demo2 policy readonly
+cat > liyang01.json << EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:GetBucketLocation","s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::liyang01",
+        "arn:aws:s3:::liyang02"
+      ],
+      "Sid": ""
+    },
+    {
+      "Action": [
+        "s3:GetObject","s3:PutObject","s3:DeleteObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "arn:aws:s3:::liyang01/*",
+        "arn:aws:s3:::liyang02/*"
+      ],
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+mc admin policy add minio liyang01 liyang01.json
+mc admin policy list minio
+mc admin policy info minio liyang01
+mc admin policy remove minio liyang01
+
+# add custom policy to user and view user policy
+mc admin policy set minio liyang01 user=liyang
+mc admin user info minio liyang
+
+# S3 gateway with minio for storageGrid
+docker run -d -p 9002:9000 --name storageGrid \
+ -e "MINIO_ACCESS_KEY=LLO0BLYM08LZ6J97ZZUI" \
+ -e "MINIO_SECRET_KEY=tQxphVxdmeeSi5xYRuss5nED+3ArPbwxoRiuzOtR" \
+ minio/minio gateway s3 http://192.168.20.182:8084
+
+# S3 gateway with minio for radosgw
+docker run -d -p 9002:9000 --name s3_ceph \
+ -e "MINIO_ACCESS_KEY=C5PR8CK8FB16NGAR125W" \
+ -e "MINIO_SECRET_KEY=12345678" \
+ minio/minio gateway s3 http://192.168.20.143:7480

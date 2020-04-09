@@ -1,0 +1,27 @@
+---
+- hosts: master
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: install_master
+      yum: name=moosefs-master,moosefs-cgi,moosefs-cgiserv,moosefs-cli,moosefs-client
+
+    - name: config_master
+      shell: echo "{{net}} / rw,alldirs,admin,maproot=0:0" > /etc/mfs/mfsexports.cfg
+
+    - name: start_master
+      shell: mfsmaster start; echo "mfsmaster -a" >> /etc/rc.local; chmod 755 /etc/rc.d/rc.local
+
+- hosts: node
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: start_node
+      shell: mfschunkserver start; echo "mfschunkserver start" >> /etc/rc.local; chmod 755 /etc/rc.d/rc.local
+
+    - name: start_client
+      shell: mfsmount -H {{master}} {{client_dir}}; echo "mfsmount -H {{master}} {{client_dir}}" >> /etc/rc.local

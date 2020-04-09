@@ -1,0 +1,22 @@
+#[Member]
+ETCD_NAME={{ansible_hostname}}
+ETCD_DATA_DIR="/var/lib/etcd/default.etcd"
+
+ETCD_LISTEN_PEER_URLS="https://{{ansible_eth0.ipv4.address}}:2380"
+ETCD_LISTEN_CLIENT_URLS="https://{{ ansible_eth0.ipv4.address}}:2379,https://localhost:2379"
+
+#[Clustering]
+ETCD_INITIAL_ADVERTISE_PEER_URLS="https://{{ ansible_eth0.ipv4.address}}:2380"
+ETCD_ADVERTISE_CLIENT_URLS="https://{{ ansible_eth0.ipv4.address}}:2379"
+ETCD_INITIAL_CLUSTER="c03=https://{{node1}}:2380,c04=https://{{node2}}:2380,c05=https://{{node3}}:2380"
+ETCD_INITIAL_CLUSTER_TOKEN="etcd-cluster"
+ETCD_INITIAL_CLUSTER_STATE="new"
+
+ETCD_CERT_FILE="/usr/local/ssl/etcd/server.pem"
+ETCD_KEY_FILE="/usr/local/ssl/etcd/server-key.pem"
+ETCD_TRUSTED_CA_FILE="/usr/local/ssl/etcd/ca.pem"
+ETCD_CLIENT_CERT_AUTH="true"
+ETCD_PEER_CERT_FILE="/usr/local/ssl/etcd/server.pem"
+ETCD_PEER_KEY_FILE="/usr/local/ssl/etcd/server-key.pem"
+ETCD_PEER_TRUSTED_CA_FILE="/usr/local/ssl/etcd/ca.pem"
+ETCD_PEER_CLIENT_CERT_AUTH="true"

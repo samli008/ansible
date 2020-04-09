@@ -1,0 +1,9 @@
+# Flanneld configuration options
+# For address range assignment
+FLANNEL_ETCD_PREFIX="/atomic.io/network"
+
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="--etcd-endpoints=https://{{node1}}:2379 \
+            -etcd-cafile=/usr/local/ssl/etcd/ca.pem \
+            -etcd-certfile=/usr/local/ssl/etcd/server.pem \
+            -etcd-keyfile=/usr/local/ssl/etcd/server-key.pem"

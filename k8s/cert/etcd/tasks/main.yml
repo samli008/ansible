@@ -1,0 +1,17 @@
+---
+# tasks file for etcd
+- name: create install dir
+  file: path=/usr/local/ssl/etcd state=directory mode=755
+- name: copy_ca_file
+  copy: src=/usr/local/ssl/etcd/{{item}} dest=/usr/local/ssl/etcd mode=755
+  with_items:
+    - ca.pem
+    - server.pem
+    - server-key.pem
+
+- name: install etcd
+  yum: name=etcd state=installed
+- name: config etcd
+  template: dest=/etc/etcd/etcd.conf src=etcd.conf.j2
+- name: start etcd
+  service: name=etcd state=started enabled=yes

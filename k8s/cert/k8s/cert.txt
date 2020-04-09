@@ -1,0 +1,104 @@
+# create cert dir
+mkdir -pv /usr/local/ssl/k8s
+cd /usr/local/ssl/k8s
+
+# ca config file
+cat > ca-config.json << EOF
+{
+  "signing": {
+    "default": {
+      "expiry": "87600h"
+    },
+    "profiles": {
+      "kubernetes": {
+         "expiry": "87600h",
+         "usages": [
+            "signing",
+            "key encipherment",
+            "server auth",
+            "client auth"
+        ]
+      }
+    }
+  }
+}
+EOF
+
+# ca csr file
+cat > ca-csr.json << EOF
+{
+    "CN": "kubernetes",
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "L": "Chengdu",
+            "ST": "Chengdu",
+            "O": "k8s",
+            "OU": "System"
+        }
+    ]
+} 
+EOF
+
+# k8s apiserver csr file
+cat > server-csr.json << EOF
+{
+    "CN": "kubernetes",
+    "hosts": [
+      "192.168.20.143",
+      "10.0.0.1",
+      "127.0.0.1",
+      "kubernetes",
+      "kubernetes.default",
+      "kubernetes.default.svc",
+      "kubernetes.default.svc.cluster",
+      "kubernetes.default.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "CN",
+            "L": "Chengdu",
+            "ST": "Chengdu",
+            "O": "k8s",
+            "OU": "System"
+        }
+    ]
+}
+EOF
+
+# k8s proxy csr file
+cat > kube-proxy-csr.json << EOF
+{
+  "CN": "system:kube-proxy",
+  "hosts": [],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "CN",
+      "L": "Chengdu",
+      "ST": "Chengdu",
+      "O": "k8s",
+      "OU": "System"
+    }
+  ]
+}
+EOF
+
+# Generate certificate 
+# ca.pem ca-key.pem server.pem server-key.pem kube-proxy.pem kube-proxy-key.pem
+cfssl gencert -initca ca-csr.json | cfssljson -bare ca -
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes server-csr.json | cfssljson -bare server
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+# scp all pem file to all nodes same dir

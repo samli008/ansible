@@ -1,0 +1,41 @@
+# ansible-playbook with yaml
+## httpd.yaml
+---
+- hosts: mfs
+  remote_user: root
+
+  tasks:
+    - name: install_httpd
+      yum: name=httpd
+    - name: conf_file
+      copy: src=/root/index.html dest=/var/www/html
+      notify: restart_service
+      tags: update_html
+    - name: start_service
+      service: name=httpd state=started enabled=yes
+
+  handlers:
+    - name: restart_service
+      service: name=httpd state=restarted
+
+## etcd.conf.j2 with template model
+- hosts: all
+  remote_user: root
+
+  tasks:
+    - name: install etcd
+      yum: name=etcd state=installed
+    - name: config etcd
+      template: dest=/etc/etcd/etcd.conf src=etcd.conf.j2
+    - name: start etcd
+      service: name=etcd state=started enabled=yes
+
+[root@c03 ~]# tree
+.
+├── etcd.yaml
+└── templates
+    └── etcd.conf.j2
+
+ansible-playbook -C httpd.yaml  #precheck
+ansible-playbook httpd.yaml
+ansible-playbook -t update_html httpd.yaml

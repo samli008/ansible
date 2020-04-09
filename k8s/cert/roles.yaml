@@ -1,0 +1,25 @@
+- name: common
+  gather_facts: false
+  hosts: all 
+  roles:
+    - common
+
+- name: etcd
+  hosts: all 
+  roles:
+    - etcd
+
+- name: master
+  hosts: c03
+  roles:
+    - master
+
+- name: node
+  hosts: all
+  roles:
+    - node
+
+- name: flannel
+  hosts: all
+  roles:
+    - flannel

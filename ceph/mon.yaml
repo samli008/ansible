@@ -1,0 +1,18 @@
+---
+- hosts: mon
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: deploy_mon_folder
+      file: path={{item}} state=directory mode=755
+      with_items: 
+        - /etc/ceph 
+        - /var/lib/ceph
+
+    - name: deploy_mon_node
+      shell: docker run -d --net=host --name=mon --restart=always -v /etc/ceph:/etc/ceph -v /var/lib/ceph:/var/lib/ceph -e MON_IP={{mon_ip}} -e CEPH_PUBLIC_NETWORK={{net}} ceph/daemon mon 
+
+    - name: deploy_mgr_node
+      shell: docker run -d --net=host --name=mgr --restart=always -v /etc/ceph:/etc/ceph -v /var/lib/ceph:/var/lib/ceph ceph/daemon mgr

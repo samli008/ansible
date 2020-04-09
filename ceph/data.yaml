@@ -1,0 +1,9 @@
+- name: install_docker
+  shell: yum -y install docker;systemctl enable docker;systemctl start docker
+
+- name: copy_ceph_image
+  copy: src=/root/ceph.tar dest=/root/
+
+- name: import_ceph_image
+  shell: chdir=/root/ tar xzf ceph.tar;docker load < cephdaemon.tar
+

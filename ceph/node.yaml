@@ -1,0 +1,7 @@
+- hosts: osd
+  remote_user: root
+  vars_files: 
+    - var.yaml
+
+  tasks:
+    - include: data.yaml

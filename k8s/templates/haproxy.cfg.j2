@@ -1,0 +1,23 @@
+global
+    log         127.0.0.1 local2
+    chroot      /etc/haproxy
+    pidfile     /etc/haproxy/haproxy.pid
+    maxconn     10240
+    user        haproxy
+    group       haproxy
+    daemon
+
+defaults
+    mode  tcp
+    log  global
+    timeout client 3600s
+    timeout connect 2s
+    timeout server 3600s
+    maxconn  10240
+
+listen liyangtcp
+    bind 0.0.0.0:80
+    balance roundrobin
+    server tcp03 192.168.20.143:31000 weight 1
+    server tcp04 192.168.20.144:31000 weight 1
+    server tcp05 192.168.20.151:31000 weight 1

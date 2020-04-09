@@ -1,0 +1,62 @@
+---
+# tasks file for master
+- name: create install dir
+  file: path=/usr/local/ssl/k8s state=directory mode=755
+- name: copy_ca_file
+  copy: src=/usr/local/ssl/k8s/{{item}} dest=/usr/local/ssl/k8s mode=755
+  with_items:
+    - ca.pem
+    - ca-key.pem 
+    - server.pem
+    - server-key.pem
+    - kube-proxy.pem
+    - kube-proxy-key.pem
+    - token.csv
+
+- name: create install dir
+  file: path={{item}} state=directory mode=755
+  with_items:
+    - "{{path}}"
+- name: copy_bin
+  copy: src=/root/server/bin/{{item}} dest={{path[1]}} mode=755
+  with_items:
+    - "{{api}}"
+- name: copy_kubectl
+  copy: src=/root/server/bin/kubectl dest=/usr/local/sbin mode=755 
+
+- name: environment variable
+  shell: echo "export PATH=$PATH:/usr/local/kubernetes/bin" >> /etc/profile
+
+- name: config master
+  template: src={{item}} dest={{path[0]}}/{{item.split('.')[:-1]|join('.')}}
+  with_items:
+    - kubernetes.j2
+    - kube-apiserver.j2
+
+- name: config service
+  template: src={{item}} dest=/usr/lib/systemd/system/{{ item.split('.')[:-1]|join('.') }}
+  with_items:
+    - kube-apiserver.service.j2
+    - kube-controller-manager.service.j2
+    - kube-scheduler.service.j2
+
+- name: start master
+  systemd: name={{ item }} state=restarted enabled=yes daemon_reload=yes
+  with_items:
+    - kube-apiserver
+    - kube-controller-manager
+    - kube-scheduler
+
+- name: RBAC
+  copy: src={{ item }} dest=/root/
+  with_items:
+    - kubelet-bootstrap-rbac.yaml
+    - api-to-kubelet-rbac.yaml
+
+- name: exec RBAC
+  ignore_errors: yes
+  shell: kubectl apply -f /root/api-to-kubelet-rbac.yaml && \
+         kubectl apply -f /root/kubelet-bootstrap-rbac.yaml
+
+- name: exec etcd_script
+  shell: sh /root/liyang/x1

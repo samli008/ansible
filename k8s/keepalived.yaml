@@ -1,0 +1,37 @@
+- hosts: c03
+  remote_user: root
+
+  tasks:
+    - name: install keepalived
+      yum: name=keepalived state=installed
+    - name: config keepalived
+      template: dest=/etc/keepalived/keepalived.conf src=keepalived.conf1.j2
+    - name: config api
+      template: dest=/etc/keepalived/api.sh src=api.sh.j2
+    - name: config start
+      template: dest=/etc/keepalived/start.sh src=start.sh.j2
+    - name: config stop
+      template: dest=/etc/keepalived/stop.sh src=stop.sh.j2
+    - name: change execute
+      shell: chmod 755 /etc/keepalived/*.sh
+    - name: start_keepalied
+      service: name=keepalived state=started enabled=yes
+
+- hosts: c04
+  remote_user: root
+
+  tasks:
+    - name: install keepalived
+      yum: name=keepalived state=installed
+    - name: config keepalived
+      template: dest=/etc/keepalived/keepalived.conf src=keepalived.conf2.j2
+    - name: config api
+      template: dest=/etc/keepalived/api.sh src=api.sh.j2
+    - name: config start
+      template: dest=/etc/keepalived/start.sh src=start.sh.j2
+    - name: config stop
+      template: dest=/etc/keepalived/stop.sh src=stop.sh.j2
+    - name: change execute
+      shell: chmod 755 /etc/keepalived/*.sh
+    - name: start_keepalived
+      service: name=keepalived state=started enabled=yes

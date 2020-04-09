@@ -1,0 +1,54 @@
+# ansible basic not service only tool with model working.
+# ansible based paramiko and PyYaml python packages.
+# install ansible and ssh trust hosts
+
+yum -y install ansible
+ssh-keygen
+ssh-copy-id
+
+# Inventory in /etc/ansible/hosts
+
+## demo1 
+[mfs]
+c0[3:5]
+
+[mfs01]
+192.168.20.14[3:4]
+192.168.20.151
+
+## demo2
+[mfs:children]
+mfs_master
+mfs_node
+mfs_client
+
+[mfs_master]
+c03
+[mfs_node]
+c0[3:5]
+[mfs_client]
+c0[3:5]
+
+ansible mfs --list
+ansible mfs_master --list
+ansible mfs_client --list
+
+# command model on default
+ansible -i /etc/ansible/hosts mfs -u root -m command -a 'date' -k
+
+ansible mfs -a 'date'
+ansible all -a 'date'
+ansible mfs -m ping
+
+# if net7 exist cli not execute
+ansible mfs -a 'creates=/root/net7 ls /root'
+
+# if net7 exist cli execute
+ansible mfs -a 'removes=/root/net7 ls /root'
+
+# change directory exec cli
+ansible mfs -a 'chdir=/root/ tar czvf net7.tar net7'
+
+# shell model: ansible-doc -s shell; support | *
+ansible mfs -m shell -a 'ss -nlpt | grep 22'
+ansible mfs -m shell -a "rm -f /root/*"
