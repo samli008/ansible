@@ -5,21 +5,28 @@
     - name: vg
       lvg:
         vg: mfs
-        pvs: /dev/vdb
-    - name: lv
+        pvs: /dev/vdb,/dev/vdc
+
+    - name: lv1
       lvol:
         vg: mfs
         lv: data
         size: 50g
+
+    - name: lv2
+      lvol:
+        vg: mfs
+        lv: data1
+        size: 100%FREE
+
     - name: fs
       filesystem:
         fstype: xfs
         dev: /dev/mfs/data
+
     - name: mount point
       mount: 
         name: /data
         src: /dev/mfs/data
         fstype: xfs
         state: mounted
-
-      
