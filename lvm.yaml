@@ -1,0 +1,25 @@
+- hosts: node
+  remote_user: root
+
+  tasks:
+    - name: vg
+      lvg:
+        vg: mfs
+        pvs: /dev/vdb
+    - name: lv
+      lvol:
+        vg: mfs
+        lv: data
+        size: 50g
+    - name: fs
+      filesystem:
+        fstype: xfs
+        dev: /dev/mfs/data
+    - name: mount point
+      mount: 
+        name: /data
+        src: /dev/mfs/data
+        fstype: xfs
+        state: mounted
+
+      
