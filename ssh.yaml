@@ -1,0 +1,29 @@
+# install and config ansible
+yum -y install ansible
+cat > /etc/ansible/hosts << EOF
+[node]
+c04 ansible_ssh_user="root" ansible_ssh_pass="liyang"
+c05 ansible_ssh_user="root" ansible_ssh_pass="liyang"
+c06 ansible_ssh_user="root" ansible_ssh_pass="liyang"
+EOF
+
+# vi /etc/ansible/ansible.cfg
+host_key_checking = False
+
+# generate ssh rsa
+ssh-keygen
+
+# ssh.yaml
+- hosts: node
+  tasks:
+    - name: Transfer file from node4 to nodes
+      copy:
+        src: /root/.ssh/id_rsa.pub
+        dest: /root/.ssh/
+        mode: 0600
+    - name: Rename client ssh file
+      command: mv /root/.ssh/id_rsa.pub /root/.ssh/authorized_keys
+    - name: change direction .ssh to 700
+      command: chmod 700 /root/.ssh
+
+ansible-playbook ssh.yaml
