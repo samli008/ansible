@@ -1,8 +1,0 @@
-#!/bin/bash
-A=`ip a | grep 172 | wc -l`
-B=`ps -C kube-apiserver --no-header | wc -l`
-if [ $A -ne 0 ];then
-        if [ $B -eq 0 ];then
-                systemctl start kube-apiserver
-        fi
-fi
