@@ -1,0 +1,12 @@
+- hosts: all
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: install flannel
+      yum: name=flannel state=installed
+    - name: config flanneld
+      template: dest=/etc/sysconfig/flanneld src=flanneld.j2
+    - name: service
+      service: name=flanneld state=restarted enabled=yes

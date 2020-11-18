@@ -1,0 +1,14 @@
+[Unit]
+Description=kubelet
+After=docker.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+EnvironmentFile=-/usr/local/kubernetes/conf/kubelet
+ExecStart=/usr/local/kubernetes/bin/kubelet \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOG_DIR \
+            $KUBELET_ADDRESS \
+            $KUBELET_ARGS
+[Install]
+WantedBy=multi-user.target

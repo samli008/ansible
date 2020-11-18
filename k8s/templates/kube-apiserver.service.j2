@@ -1,0 +1,17 @@
+[Unit]
+Description=kube-apiserver
+After=network.target
+[Service]
+EnvironmentFile=-/usr/local/kubernetes/conf/kubernetes
+EnvironmentFile=-/usr/local/kubernetes/conf/kube-apiserver
+ExecStart=/usr/local/kubernetes/bin/kube-apiserver \
+            $KUBE_API_ADDRESS \
+            $KUBE_API_PORT \
+            $KUBE_ETCD_SERVERS \
+            $KUBE_LOG_LEVEL \
+            $KUBE_LOGTOSTDERR \
+            $KUBE_LOG_DIR \
+            $KUBE_ALLOW_PRIV \
+            $KUBE_ADMISSION_CONTROL
+[Install]
+WantedBy=multi-user.target

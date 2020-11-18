@@ -1,0 +1,14 @@
+- hosts: master
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: config controller-manager
+      template: dest=/usr/lib/systemd/system/kube-controller-manager.service src=kube-controller-manager.service.j2
+    - name: start kube-controller-manager
+      service: name=kube-controller-manager state=started enabled=yes
+    - name: config scheduler
+      template: dest=/usr/lib/systemd/system/kube-scheduler.service src=kube-scheduler.service.j2
+    - name: start kube-scheduler
+      service: name=kube-scheduler state=started enabled=yes

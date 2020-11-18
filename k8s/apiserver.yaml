@@ -1,0 +1,26 @@
+- hosts: master
+  remote_user: root
+  vars_files:
+    - var.yaml
+
+  tasks:
+    - name: create install dir
+      file: path={{item}} state=directory mode=755
+      with_items: 
+        - "{{path}}"
+    - name: copy_bin
+      copy: src=/root/server/bin/{{item}} dest=/usr/local/kubernetes/bin mode=755
+      with_items:
+        - "{{api}}"
+
+    - name: environment variable
+      shell: echo "export PATH=$PATH:/usr/local/kubernetes/bin" >> /etc/profile
+
+    - name: config kubernetes
+      template: dest=/usr/local/kubernetes/conf/kubernetes src=kubernetes.j2
+    - name: config apiserver
+      template: dest=/usr/local/kubernetes/conf/kube-apiserver src=kube-apiserver.j2
+    - name: config service
+      template: dest=/usr/lib/systemd/system/kube-apiserver.service src=kube-apiserver.service.j2
+    - name: start kube-apiserver
+      service: name=kube-apiserver state=started enabled=yes

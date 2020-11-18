@@ -1,0 +1,2 @@
+for i in {c04,c05,c06};do kubectl label node $i node-role.kubernetes.io/worker=;done
+for i in {c04,c05};do kubectl label node $i node-role.kubernetes.io/master=;done

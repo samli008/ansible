@@ -1,0 +1,2 @@
+KUBELET_ADDRESS="--address={{ansible_eth0.ipv4.address}}"
+KUBELET_ARGS="--kubeconfig=/usr/local/kubernetes/conf/kubeconfig --cgroup-driver=cgroupfs --enable-server=true --enable-debugging-handlers=true"

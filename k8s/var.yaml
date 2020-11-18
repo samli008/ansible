@@ -1,0 +1,11 @@
+vip: 192.168.8.60
+node1: 192.168.8.24
+node2: 192.168.8.25
+node3: 192.168.8.26
+host1: c04
+host2: c05
+host3: c06
+
+path: ["/usr/local/kubernetes/conf","/usr/local/kubernetes/bin","/usr/local/kubernetes/logs"]
+api: [kubectl,kube-apiserver,kube-scheduler,kube-controller-manager]
+node: [kubelet,kube-proxy]

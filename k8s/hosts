@@ -1,0 +1,11 @@
+[node]
+c04
+c05
+c06
+
+[master]
+c04 ha_role=master iface="eth0"
+c05 ha_role=backup iface="eth0"
+
+[all:vars]
+keepalived_vip="192.168.8.60/24"

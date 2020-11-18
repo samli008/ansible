@@ -1,0 +1,21 @@
+! Configuration File for keepalived
+
+global_defs {
+   router_id k8s
+}
+
+vrrp_instance VI_1 {
+    state BACKUP
+    interface {{iface}}
+    virtual_router_id 53
+    priority 99
+    advert_int 1
+    nopreempt
+    authentication {
+        auth_type PASS
+        auth_pass 1111
+    }
+    virtual_ipaddress {
+        {{ keepalived_vip }}
+    }
+}

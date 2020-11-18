@@ -1,0 +1,18 @@
+- hosts: master
+  gather_facts: yes
+  remote_user: root
+
+  tasks:
+    - name: install keepalived
+      yum: name=keepalived state=installed
+
+    - name: keepalived master node
+      template: dest=/etc/keepalived/keepalived.conf src=keepalived.master.j2
+      when: ha_role == "master"
+
+    - name: keepalived backup node
+      template: dest=/etc/keepalived/keepalived.conf src=keepalived.backup.j2
+      when: ha_role == "backup"
+
+    - name: start_keepalied
+      service: name=keepalived state=started enabled=yes
