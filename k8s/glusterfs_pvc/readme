@@ -1,4 +1,0 @@
-endpoints-->pod
-endpoints-->pv-->pvc-->pod-->service
-
-glusterfs-cluster.yaml define endpoints
