@@ -1,5 +1,0 @@
-[ceph]
-name=mimic
-baseurl=file:///root/mimic
-enabled=1
-gpgcheck=0

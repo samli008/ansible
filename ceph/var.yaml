@@ -1,5 +1,0 @@
-mon_ip: 10.20.10.10
-net: 10.20.10.0/24
-
-osd: [sda,sdb,sdc,sdd,sde,sdf,sdg,sdh,sdi,sdj,sdj,sdk,sdl]
-pg: 256

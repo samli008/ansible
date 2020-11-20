@@ -1,4 +1,0 @@
-ansible-playbook node.yaml
-ansible-playbook mon.yaml   
-ansible-playbook mon_extend.yaml
-ansible-playbook osd.yaml 

@@ -1,7 +1,0 @@
----
-- hosts: mon
-  remote_user: root
-
-  tasks:
-    - name: deploy_ceph_rgw
-      shell: docker run -d --net=host --name=rgw --restart=always -v /var/lib/ceph/:/var/lib/ceph/ -v /etc/ceph:/etc/ceph ceph/daemon rgw
